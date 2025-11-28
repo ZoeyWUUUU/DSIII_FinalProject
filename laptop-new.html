@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dead Internet Ritual - Laptop Display</title>
+  
+  <link rel="stylesheet" href="css/shared.css">
+  <link rel="stylesheet" href="css/laptop.css">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #00ff00;
+      font-family: monospace;
+      overflow: hidden;
+    }
+    
+    .laptop-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px;
+      text-align: center;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .large-text {
+      font-size: 72px;
+      font-weight: bold;
+      margin: 20px 0;
+      text-shadow: 0 0 20px #00ff00;
+    }
+    
+    .medium-text {
+      font-size: 36px;
+      margin: 20px 0;
+    }
+    
+    .small-text {
+      font-size: 24px;
+      color: #00cc00;
+    }
+    
+    .countdown-display {
+      font-size: 120px;
+      font-weight: bold;
+      color: #ff0000;
+      text-shadow: 0 0 30px #ff0000;
+      margin: 40px 0;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .summon-button {
+      padding: 20px 40px;
+      font-size: 24px;
+      background: #00ff00;
+      color: #000;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 40px;
+      transition: all 0.3s;
+    }
+    
+    .summon-button:hover {
+      background: #00cc00;
+      transform: scale(1.05);
+    }
+    
+    .reset-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: rgba(255, 0, 0, 0.3);
+      color: #ff0000;
+      border: 1px solid #ff0000;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .reset-button:hover {
+      background: rgba(255, 0, 0, 0.5);
+    }
+    
+    .winning-question-display {
+      font-size: 32px;
+      color: #ffff00;
+      margin: 40px 0;
+      padding: 30px;
+      border: 2px solid #ffff00;
+      background: rgba(255, 255, 0, 0.1);
+      max-width: 800px;
+    }
+    
+    .ghost-message {
+      font-size: 48px;
+      color: #ff00ff;
+      text-shadow: 0 0 20px #ff00ff;
+      animation: flicker 2s infinite;
+    }
+    
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+      75% { opacity: 0.9; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Reset Button -->
+  <button id="reset-ritual-btn" class="reset-button">Reset Ritual</button>
+  
+  <div id="laptop-app">
+    <!-- STATE: Waiting for Questions -->
+    <div id="laptop-waiting-state" class="laptop-state">
+      <h1 class="large-text pulse-glow">👻</h1>
+      <p class="medium-text">Waiting for questions...</p>
+      
+      <div class="small-text" style="margin-top: 40px;">
+        <span class="laptop-participant-count">0</span> question(s) submitted
+      </div>
+      
+      <button id="summon-ghost-btn" class="summon-button hidden">
+        Summon the Ghost
+      </button>
+    </div>
+    
+    <!-- STATE: One Question Message -->
+    <div id="one-question-state" class="laptop-state hidden">
+      <h1 class="large-text ghost-message">YOU CAN ONLY ASK ME</h1>
+      <h1 class="large-text ghost-message">ONE QUESTION</h1>
+    </div>
+    
+    <!-- STATE: Voting in Progress -->
+    <div id="laptop-voting-state" class="laptop-state hidden">
+      <h1 class="medium-text">Seekers are voting...</h1>
+      
+      <div class="large-text pulse-glow">🗳️</div>
+      
+      <p class="small-text" style="margin-top: 40px;">
+        Votes: <span class="laptop-vote-count">0 / 0</span>
+      </p>
+    </div>
+    
+    <!-- STATE: Results (Winning Question) -->
+    <div id="result-state" class="laptop-state hidden">
+      <h1 class="medium-text">The chosen question:</h1>
+      
+      <div class="winning-question-display">
+        <!-- Question will be inserted here -->
+      </div>
+    </div>
+    
+    <!-- STATE: Countdown -->
+    <div id="laptop-countdown-state" class="laptop-state hidden">
+      <h1 class="medium-text">The chosen question:</h1>
+      
+      <div class="winning-question-display" id="countdown-question-display">
+        <!-- Question will be inserted here -->
+      </div>
+      
+      <div class="countdown-display" id="countdown-timer-laptop">60</div>
+      
+      <p class="small-text">seconds remaining</p>
+    </div>
+    
+    <!-- STATE: Ghost Gone -->
+    <div id="ghost-gone-state" class="laptop-state hidden">
+      <h1 class="large-text ghost-message">GHOST IS GONE</h1>
+      
+      <p class="medium-text" style="margin-top: 60px; color: #666;">
+        . . .
+      </p>
+    </div>
+  </div>
+  
+  <script src="js/laptop-app-local.js"></script>
+</body>
+</html>

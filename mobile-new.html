@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dead Internet Ritual - Mobile</title>
+  
+  <link rel="stylesheet" href="css/shared.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  
+  <style>
+    .mobile-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .question-form {
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .question-form input {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border: 1px solid #00ff00;
+      background: rgba(0, 255, 0, 0.1);
+      color: #00ff00;
+    }
+    
+    .question-form button {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      background: #00ff00;
+      color: #000;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .question-form button:hover {
+      background: #00cc00;
+    }
+    
+    .questions-list {
+      width: 100%;
+      max-width: 500px;
+      margin-top: 20px;
+    }
+    
+    .question-item {
+      background: rgba(0, 255, 0, 0.1);
+      border: 1px solid #00ff00;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+    }
+    
+    .question-text {
+      color: #00ff00;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .vote-button {
+      width: 100%;
+      padding: 10px;
+      background: #00ff00;
+      color: #000;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .vote-button:hover {
+      background: #00cc00;
+    }
+    
+    .status-text {
+      color: #00ff00;
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    
+    .count-display {
+      color: #00ff00;
+      font-size: 48px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- STATE: Submit Question -->
+    <div id="submit-state" class="mobile-state">
+      <h1 class="glitch" data-text="Ask the Ghost">Ask the Ghost</h1>
+      <p class="status-text">Submit your question</p>
+      
+      <form id="question-form-new" class="question-form">
+        <input 
+          type="text" 
+          id="question-input-new" 
+          placeholder="What do you want to know?"
+          maxlength="200"
+          required
+        >
+        <button type="submit">Submit Question</button>
+      </form>
+      
+      <p class="text-xs text-dim" style="margin-top: 20px;">
+        <span class="participant-count">0</span> question(s) submitted
+      </p>
+    </div>
+    
+    <!-- STATE: Waiting for Others -->
+    <div id="waiting-state" class="mobile-state hidden">
+      <h1 class="glitch" data-text="Question Submitted">Question Submitted</h1>
+      <p class="status-text">Waiting for others...</p>
+      
+      <div class="count-display">
+        <span class="current-count">1</span> / <span class="total-count">2-5</span>
+      </div>
+      
+      <p class="text-xs text-dim">participants have submitted questions</p>
+    </div>
+    
+    <!-- STATE: Voting -->
+    <div id="voting-state" class="mobile-state hidden">
+      <h1 class="glitch" data-text="Vote for a Question">Vote for a Question</h1>
+      <p class="status-text">The ghost will answer ONE question</p>
+      
+      <div class="questions-list">
+        <!-- Questions will be dynamically inserted here -->
+      </div>
+    </div>
+    
+    <!-- STATE: Voted -->
+    <div id="voted-state" class="mobile-state hidden">
+      <h1 class="glitch" data-text="Vote Submitted">Vote Submitted</h1>
+      <p class="status-text">Waiting for others to vote...</p>
+      
+      <div class="count-display">
+        <span class="vote-count">1</span>
+      </div>
+      
+      <p class="text-xs text-dim">votes submitted</p>
+    </div>
+    
+    <!-- STATE: Countdown -->
+    <div id="countdown-state" class="mobile-state hidden">
+      <h1 class="glitch" data-text="The Ghost Speaks">The Ghost Speaks</h1>
+      <p class="status-text">Watch the laptop display...</p>
+      
+      <div class="pulse-glow" style="margin-top: 40px;">
+        <p class="text-lg">👻</p>
+      </div>
+    </div>
+    
+    <!-- STATE: Ended -->
+    <div id="ended-state" class="mobile-state hidden">
+      <h1 class="glitch" data-text="Ghost is Gone">Ghost is Gone</h1>
+      <p class="status-text">The ritual is complete</p>
+      
+      <p class="text-xs text-dim" style="margin-top: 40px;">
+        Restarting soon...
+      </p>
+    </div>
+  </div>
+  
+  <script src="js/mobile-app-local.js"></script>
+</body>
+</html>

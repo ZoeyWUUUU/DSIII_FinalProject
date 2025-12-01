@@ -39,6 +39,13 @@ class MobileRitualApp {
       questionForm.addEventListener('submit', (e) => this.handleQuestionSubmit(e));
     }
     
+    // Use event delegation for payment form since it may not be visible yet
+    document.addEventListener('submit', (e) => {
+      if (e.target.id === 'payment-form') {
+        this.handlePaymentSubmit(e);
+      }
+    });
+    
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('vote-button')) {
         const questionId = e.target.dataset.questionId;
@@ -191,13 +198,67 @@ class MobileRitualApp {
     }
   }
   
+  handlePaymentSubmit(e) {
+    e.preventDefault();
+    
+    const input = document.getElementById('payment-input');
+    const payment = input.value.trim();
+    
+    if (!payment) return;
+    
+    console.log('💸 Payment offered to the void:', payment);
+    
+    // Clear the input - payment is consumed by the void (not sent anywhere)
+    input.value = '';
+    
+    // Show brief feedback
+    const button = e.target.querySelector('button');
+    const originalText = button.textContent;
+    button.textContent = 'Payment Consumed...';
+    button.disabled = true;
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.disabled = false;
+    }, 1500);
+  }
+  
   showCountdownState(data) {
+    // Check if we're in payment phase (more than 10 seconds into countdown)
+    if (data.countdownStart) {
+      const elapsed = Math.floor((Date.now() - data.countdownStart) / 1000);
+      
+      console.log(`Countdown elapsed: ${elapsed}s`);
+      
+      // If more than 10 seconds have passed, we're in payment phase
+      if (elapsed >= 10) {
+        console.log('Switching to payment state');
+        this.showPaymentState();
+        return;
+      }
+    }
+    
+    // Otherwise show sacrifice/countdown state
+    console.log('Showing countdown/sacrifice state');
     const countdownState = document.getElementById('countdown-state');
     if (countdownState) {
       countdownState.classList.remove('hidden');
     }
     document.querySelectorAll('.mobile-state').forEach(el => {
       if (el.id !== 'countdown-state') {
+        el.classList.add('hidden');
+      }
+    });
+  }
+  
+  showPaymentState() {
+    console.log('Displaying payment form');
+    const paymentState = document.getElementById('payment-state');
+    if (paymentState) {
+      paymentState.classList.remove('hidden');
+    }
+    document.querySelectorAll('.mobile-state').forEach(el => {
+      if (el.id !== 'payment-state') {
         el.classList.add('hidden');
       }
     });

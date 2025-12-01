@@ -14,7 +14,51 @@ class LaptopRitualApp {
     this.winningQuestion = null;
     
     console.log('💻 Laptop app initialized (Local Network Version)');
+    this.initMatrixRain();
     this.init();
+  }
+  
+  initMatrixRain() {
+    const canvas = document.getElementById('matrix-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const chars = '01';
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    
+    for (let i = 0; i < columns; i++) {
+      drops[i] = Math.random() * canvas.height / fontSize;
+    }
+    
+    const draw = () => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = '#0f0';
+      ctx.font = fontSize + 'px monospace';
+      
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    };
+    
+    setInterval(draw, 33);
+    
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
   }
   
   async init() {
@@ -48,6 +92,11 @@ class LaptopRitualApp {
         
         if (response.ok) {
           console.log('✓ Voting started');
+          // Stop general polling during vote monitoring
+          if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+          }
           await this.checkState();
           this.startVoteMonitoring();
         }
@@ -69,16 +118,23 @@ class LaptopRitualApp {
           
           console.log(`Votes: ${voteCount}/${participantCount}`);
           
+          // Update vote count display
+          this.showVotingState(data);
+          
           if (voteCount >= participantCount) {
             clearInterval(voteCheckInterval);
-            console.log('✓ All votes received!');
-            setTimeout(() => this.showResults(), 1000);
+            console.log('✓ All votes received! Transitioning to results...');
+            // Immediate transition to results - DON'T restart polling yet
+            await this.showResults();
           }
+        } else if (data.state !== 'voting') {
+          clearInterval(voteCheckInterval);
+          console.log('Voting ended, clearing interval');
         }
       } catch (error) {
         console.error('Error checking votes:', error);
       }
-    }, 1000);
+    }, 500);
   }
   
   async showResults() {
@@ -114,46 +170,101 @@ class LaptopRitualApp {
     });
   }
   
+  startSacrificeCountdown() {
+    const sacrificeState = document.getElementById('sacrifice-state');
+    if (sacrificeState) {
+      sacrificeState.classList.remove('hidden');
+      
+      const questionEl = document.getElementById('sacrifice-question-display');
+      if (questionEl && this.winningQuestion) {
+        questionEl.textContent = this.winningQuestion.question;
+      }
+    }
+    
+    document.querySelectorAll('.laptop-state').forEach(el => {
+      if (el.id !== 'sacrifice-state') {
+        el.classList.add('hidden');
+      }
+    });
+    
+    let timeLeft = 10;
+    const timerEl = document.getElementById('sacrifice-timer');
+    
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+    
+    this.countdownInterval = setInterval(() => {
+      timeLeft--;
+      if (timerEl) {
+        timerEl.textContent = timeLeft;
+      }
+      
+      if (timeLeft <= 0) {
+        clearInterval(this.countdownInterval);
+        this.startPaymentCountdown();
+      }
+    }, 1000);
+  }
+  
+  startPaymentCountdown() {
+    const paymentState = document.getElementById('payment-state');
+    if (paymentState) {
+      paymentState.classList.remove('hidden');
+      
+      const questionEl = document.getElementById('payment-question-display');
+      if (questionEl && this.winningQuestion) {
+        questionEl.textContent = this.winningQuestion.question;
+      }
+    }
+    
+    document.querySelectorAll('.laptop-state').forEach(el => {
+      if (el.id !== 'payment-state') {
+        el.classList.add('hidden');
+      }
+    });
+    
+    let timeLeft = 30;
+    const timerEl = document.getElementById('payment-timer');
+    
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+    
+    this.countdownInterval = setInterval(async () => {
+      timeLeft--;
+      if (timerEl) {
+        timerEl.textContent = timeLeft;
+      }
+      
+      if (timeLeft <= 0) {
+        clearInterval(this.countdownInterval);
+        await this.endRitual();
+      }
+    }, 1000);
+  }
+  
   async startCountdown() {
     try {
+      // Stop polling during countdown to prevent interference
+      if (this.pollInterval) {
+        clearInterval(this.pollInterval);
+        this.pollInterval = null;
+        console.log('✓ Polling stopped for countdown');
+      }
+      
+      // Update server state to countdown
       await fetch(`${API_URL}/start-countdown`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
       
-      const countdownState = document.getElementById('laptop-countdown-state');
-      if (countdownState) {
-        countdownState.classList.remove('hidden');
-        
-        const questionEl = countdownState.querySelector('#countdown-question-display');
-        if (questionEl && this.winningQuestion) {
-          questionEl.textContent = this.winningQuestion.question;
-        }
-      }
-      
-      document.querySelectorAll('.laptop-state').forEach(el => {
-        if (el.id !== 'laptop-countdown-state') {
-          el.classList.add('hidden');
-        }
-      });
-      
-      let timeLeft = 60;
-      const timerEl = document.getElementById('countdown-timer-laptop');
-      
-      this.countdownInterval = setInterval(async () => {
-        timeLeft--;
-        if (timerEl) {
-          timerEl.textContent = timeLeft;
-        }
-        
-        if (timeLeft <= 0) {
-          clearInterval(this.countdownInterval);
-          await this.endRitual();
-        }
-      }, 1000);
-      
+      console.log('✓ Server state updated to countdown');
+      this.startSacrificeCountdown();
     } catch (error) {
-      console.error('Error starting countdown:', error);
+      console.error('Error updating server state:', error);
+      // Still proceed with countdown even if server update fails
+      this.startSacrificeCountdown();
     }
   }
   
@@ -165,7 +276,14 @@ class LaptopRitualApp {
       });
       
       this.showGhostGone();
-      setTimeout(() => this.handleResetClick(), 5000);
+      
+      // Restart polling after ritual ends
+      if (!this.pollInterval) {
+        this.startPolling();
+        console.log('✓ Polling restarted after ritual end');
+      }
+      
+      setTimeout(() => this.handleResetClick(), 3000);
       
     } catch (error) {
       console.error('Error ending ritual:', error);
@@ -246,42 +364,17 @@ class LaptopRitualApp {
   }
   
   resumeCountdown(data) {
-    const countdownState = document.getElementById('laptop-countdown-state');
-    if (countdownState) {
-      countdownState.classList.remove('hidden');
-      
-      const questionEl = countdownState.querySelector('#countdown-question-display');
-      if (questionEl && data.winningQuestion) {
-        questionEl.textContent = data.winningQuestion.question;
-        this.winningQuestion = data.winningQuestion;
-      }
+    // Only start countdown if not already running
+    if (this.countdownInterval) {
+      console.log('Countdown already running, skipping restart');
+      return;
     }
     
-    if (data.countdownStart) {
-      const elapsed = Math.floor((Date.now() - data.countdownStart) / 1000);
-      let timeLeft = Math.max(0, 60 - elapsed);
-      
-      const timerEl = document.getElementById('countdown-timer-laptop');
-      if (timerEl) {
-        timerEl.textContent = timeLeft;
-      }
-      
-      if (this.countdownInterval) {
-        clearInterval(this.countdownInterval);
-      }
-      
-      this.countdownInterval = setInterval(async () => {
-        timeLeft--;
-        if (timerEl) {
-          timerEl.textContent = timeLeft;
-        }
-        
-        if (timeLeft <= 0) {
-          clearInterval(this.countdownInterval);
-          await this.endRitual();
-        }
-      }, 1000);
+    if (data.winningQuestion) {
+      this.winningQuestion = data.winningQuestion;
     }
+    
+    this.startSacrificeCountdown();
   }
   
   showWaitingState(data) {

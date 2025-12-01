@@ -158,14 +158,35 @@
       <p class="text-xs text-dim">votes submitted</p>
     </div>
     
-    <!-- STATE: Countdown -->
+    <!-- STATE: Countdown (Sacrifice Phase) -->
     <div id="countdown-state" class="mobile-state hidden">
       <h1 class="glitch" data-text="The Ghost Speaks">The Ghost Speaks</h1>
       <p class="status-text">Watch the laptop display...</p>
       
       <div class="pulse-glow" style="margin-top: 40px;">
-        <p class="text-lg">👻</p>
+        <p class="text-lg">RITUAL IN PROGRESS</p>
       </div>
+    </div>
+    
+    <!-- STATE: Payment -->
+    <div id="payment-state" class="mobile-state hidden">
+      <h1 class="glitch" data-text="Payment Required">Payment Required</h1>
+      <p class="status-text">Enter your payment to the ghost</p>
+      
+      <form id="payment-form" class="question-form" style="margin-top: 30px;">
+        <input 
+          type="text" 
+          id="payment-input" 
+          placeholder="Enter payment information..."
+          maxlength="200"
+          required
+        >
+        <button type="submit">Submit Payment</button>
+      </form>
+      
+      <p class="text-xs text-dim" style="margin-top: 20px; color: #ff0000;">
+        Your offering will be consumed by the void
+      </p>
     </div>
     
     <!-- STATE: Ended -->
